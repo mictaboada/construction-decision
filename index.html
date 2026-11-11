@@ -1,0 +1,966 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stop-Work Call: Heat on a Construction Site</title>
+<meta name="description" content="An interactive look at whether a construction company should send workers out in extreme heat. Move the sliders to see how heat and crew experience combine.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap">
+<style>
+:root {
+  --bg: #E5E9EC; --surface: #F6F8F9; --surface-2: #DAE0E5; --ink: #171E24; --ink-2: #48555F; --line: #C2CBD2;
+  --accent: #FFC800; --accent-ink: #171E24; --tape: #171E24;
+  --l0: #23784A; --l0-ink: #FFFFFF; --l1: #C99A00; --l1-ink: #171E24; --l2: #E06A0B; --l2-ink: #171E24; --l3: #C62F2F; --l3-ink: #FFFFFF;
+  --band-op: 0.17; --purple: #6B3FC4;
+  --font-display: 'Barlow Condensed', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+  --font-body: 'Barlow', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0F1418; --surface: #182027; --surface-2: #232D36; --ink: #E8EDF1; --ink-2: #9DA9B4; --line: #2E3943;
+    --l0: #4CC38A; --l0-ink: #0F1418; --l1: #F2C94C; --l1-ink: #0F1418; --l2: #FF9A3D; --l2-ink: #0F1418; --l3: #FF7468; --l3-ink: #0F1418;
+    --band-op: 0.22; --purple: #B794F6; color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 17px; line-height: 1.5; -webkit-text-size-adjust: 100%; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 700; margin: 0; line-height: 1.05; text-wrap: balance; }
+p { margin: 0; }
+a { color: var(--ink); }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.num { font-variant-numeric: tabular-nums; }
+
+.tape { height: 12px; background: repeating-linear-gradient(-45deg, var(--accent) 0 14px, var(--tape) 14px 28px); }
+.wrap { max-width: 1200px; margin: 0 auto; padding: 0 max(16px, env(safe-area-inset-right, 0px)) 56px max(16px, env(safe-area-inset-left, 0px)); }
+
+.hero { padding-block: 36px 24px; display: grid; gap: 18px; max-width: 860px; }
+.eyebrow { font-family: var(--font-display); font-weight: 600; font-size: 15px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-2); }
+h1 { font-size: clamp(40px, 7vw, 68px); letter-spacing: -.005em; }
+.lede { font-size: 19px; max-width: 64ch; color: var(--ink-2); }
+.lede strong { color: var(--ink); font-weight: 600; }
+.story { font-size: 20px; line-height: 1.45; max-width: 66ch; padding-left: 16px; border-left: 4px solid var(--ink); }
+.story b { font-weight: 600; }
+
+/* Explainer */
+.explain { display: grid; gap: 14px; margin-bottom: 28px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.explain section { background: var(--surface); border: 1px solid var(--line); padding: 20px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.explain h2 { font-size: 27px; text-transform: uppercase; letter-spacing: .04em; }
+.explain p, .explain li { font-size: 16px; color: var(--ink-2); }
+.explain p b, .explain li b { color: var(--ink); font-weight: 600; }
+.explain ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+
+/* Scoreboard */
+.score { position: sticky; top: 0; z-index: 20; background: var(--surface); border: 1px solid var(--line); border-left: 8px solid var(--lv, var(--ink)); display: flex; flex-wrap: wrap; align-items: center; gap: 6px 20px; padding: 10px 16px; box-shadow: 0 6px 16px -10px rgba(0,0,0,.35); }
+.chip { font-family: var(--font-display); font-weight: 700; font-size: 22px; letter-spacing: .06em; text-transform: uppercase; background: var(--lv, var(--ink)); color: var(--lv-ink, var(--bg)); padding: 3px 12px; border-radius: 3px; line-height: 1.2; white-space: nowrap; }
+.score .meta { display: flex; flex-wrap: wrap; gap: 2px 20px; font-size: 16px; min-width: 0; }
+.score .meta span { white-space: nowrap; }
+.score b { font-weight: 600; }
+.score .dim { color: var(--ink-2); }
+.lv0 { --lv: var(--l0); --lv-ink: var(--l0-ink); } .lv1 { --lv: var(--l1); --lv-ink: var(--l1-ink); }
+.lv2 { --lv: var(--l2); --lv-ink: var(--l2-ink); } .lv3 { --lv: var(--l3); --lv-ink: var(--l3-ink); }
+.lvn { --lv: var(--ink); --lv-ink: var(--bg); }
+
+.app { display: grid; gap: 28px; margin-top: 28px; grid-template-columns: minmax(0, 1fr); align-items: start; }
+@media (min-width: 960px) { .app { grid-template-columns: minmax(0, 400px) minmax(0, 1fr); gap: 40px; } }
+.panel { background: var(--surface); border: 1px solid var(--line); padding: 22px 20px; display: grid; gap: 26px; min-width: 0; }
+.group { display: grid; gap: 16px; min-width: 0; }
+.group + .group { padding-top: 24px; border-top: 1px solid var(--line); }
+.group h2 { font-size: 26px; text-transform: uppercase; letter-spacing: .04em; }
+.group .sub { color: var(--ink-2); font-size: 15px; margin-top: -8px; }
+.ctl { display: grid; gap: 2px; min-width: 0; }
+.ctl[hidden] { display: none; }
+.ctl .row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.ctl label.t { font-weight: 600; font-size: 16px; }
+.ctl output { font-family: var(--font-display); font-weight: 600; font-size: 21px; font-variant-numeric: tabular-nums; text-align: right; }
+.ctl .hint { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; color: var(--ink-2); }
+.ctl .note { font-size: 14px; color: var(--ink-2); margin-top: 2px; }
+
+input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 30px; background: transparent; margin: 0; cursor: pointer; }
+input[type=range]::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: linear-gradient(to right, var(--ink) var(--p, 0%), var(--line) var(--p, 0%)); }
+input[type=range]::-moz-range-track { height: 6px; border-radius: 3px; background: var(--line); }
+input[type=range]::-moz-range-progress { height: 6px; border-radius: 3px; background: var(--ink); }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; margin-top: -9px; border-radius: 50%; background: var(--accent); border: 3px solid var(--tape); box-shadow: 0 1px 3px rgba(0,0,0,.3); }
+input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--accent); border: 3px solid var(--tape); }
+input[type=range]:focus-visible { outline: none; }
+input[type=range]:focus-visible::-webkit-slider-thumb { outline: 3px solid var(--ink); outline-offset: 2px; }
+input[type=range]:focus-visible::-moz-range-thumb { outline: 3px solid var(--ink); outline-offset: 2px; }
+
+.presets { display: flex; flex-wrap: wrap; gap: 8px; }
+.btn { background: var(--surface-2); border: 1px solid var(--line); border-radius: 4px; padding: 7px 12px; cursor: pointer; font-family: var(--font-display); font-weight: 600; font-size: 17px; letter-spacing: .03em; text-transform: uppercase; }
+.btn:hover { border-color: var(--ink); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--tape); }
+.btn.ghost { background: transparent; }
+details.adv { border-top: 1px dashed var(--line); padding-top: 14px; }
+details.adv summary { cursor: pointer; font-weight: 600; font-size: 15px; color: var(--ink-2); }
+details.adv .group { margin-top: 14px; padding: 0; border: 0; }
+
+.results { display: grid; gap: 28px; min-width: 0; }
+.card { background: var(--surface); border: 1px solid var(--line); min-width: 0; }
+.card > .pad { padding: 20px; display: grid; gap: 10px; }
+.card h2 { font-size: 28px; text-transform: uppercase; letter-spacing: .03em; }
+.card .cap { color: var(--ink-2); font-size: 15px; }
+.verdict { display: grid; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 720px) { .verdict { grid-template-columns: minmax(0, 1fr) 260px; } }
+.verdict .head { background: var(--lv); color: var(--lv-ink); padding: 16px 20px; grid-column: 1 / -1; display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.verdict .head h2 { font-size: clamp(34px, 6vw, 48px); letter-spacing: .04em; }
+.verdict .head .big { font-family: var(--font-display); font-weight: 600; font-size: 22px; }
+.verdict .body { padding: 20px; display: grid; gap: 12px; align-content: start; }
+.verdict .body p { font-size: 18px; }
+.verdict .body .cap { font-size: 14px; }
+.verdict .days { padding: 20px; border-top: 1px solid var(--line); display: grid; gap: 10px; align-content: start; }
+@media (min-width: 720px) { .verdict .days { border-top: 0; border-left: 1px solid var(--line); } }
+.grid100 { display: grid; grid-template-columns: repeat(10, 1fr); gap: 3px; width: 100%; max-width: 280px; }
+.grid100 i { aspect-ratio: 1; background: var(--surface-2); background-image: linear-gradient(to right, var(--l3) calc(var(--f, 0) * 100%), transparent 0); }
+.grid100 i.lim { box-shadow: inset 0 0 0 2px var(--ink); }
+.days .cap { font-size: 14px; line-height: 1.35; }
+.key { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 14px; color: var(--ink-2); }
+.key span::before { content: ""; display: inline-block; width: 11px; height: 11px; margin-right: 6px; vertical-align: -1px; background: var(--l3); }
+.key span + span::before { background: var(--surface-2); box-shadow: inset 0 0 0 2px var(--ink); }
+
+.chartbox { width: 100%; }
+.chartbox svg { display: block; width: 100%; height: auto; overflow: visible; }
+.chartbox text { font-family: var(--font-body); fill: var(--ink-2); font-size: 12px; }
+.chartbox .bl { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; font-weight: 600; }
+.chartbox .lbl { fill: var(--ink); font-weight: 600; font-size: 13px; }
+.chartbox .ax { fill: var(--ink); font-size: 13px; font-weight: 500; }
+.chartbox .b0 { fill: var(--l0); } .chartbox .b1 { fill: var(--l1); } .chartbox .b2 { fill: var(--l2); } .chartbox .b3 { fill: var(--l3); }
+.chartkey { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 14px; color: var(--ink-2); }
+.toggle { display: inline-flex; gap: 4px; padding: 3px; background: var(--surface-2); border-radius: 5px; width: fit-content; }
+.toggle button { border: 0; background: transparent; padding: 5px 12px; border-radius: 3px; cursor: pointer; font-weight: 600; font-size: 14px; color: var(--ink-2); }
+.toggle button[aria-pressed=true] { background: var(--ink); color: var(--bg); }
+.notice { border-left: 4px solid var(--accent); padding: 4px 0 4px 14px; font-size: 17px; }
+.notice b { font-weight: 600; }
+
+.opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+.opt { border: 1px solid var(--line); background: var(--surface); padding: 16px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.opt.you { border: 2px solid var(--ink); box-shadow: 6px 6px 0 var(--accent); }
+.opt h3 { font-size: 26px; text-transform: uppercase; letter-spacing: .03em; }
+.opt .what { font-size: 14px; color: var(--ink-2); min-height: 2.8em; }
+.opt .odds { font-family: var(--font-display); font-weight: 700; font-size: 38px; line-height: 1; }
+.opt .odds small { display: block; font-family: var(--font-body); font-weight: 400; font-size: 14px; color: var(--ink-2); margin-top: 4px; }
+.opt dl { margin: 0; display: grid; gap: 6px; font-size: 15px; }
+.opt dl div { display: flex; justify-content: space-between; gap: 10px; border-top: 1px solid var(--line); padding-top: 6px; }
+.opt dt { color: var(--ink-2); } .opt dd { margin: 0; font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
+.tag { justify-self: start; font-size: 13px; font-weight: 600; padding: 2px 8px; border-radius: 3px; background: var(--lv); color: var(--lv-ink); }
+.pos { color: var(--l0); } .neg { color: var(--l3); }
+.rec { border: 2px dashed var(--ink); padding: 18px 20px; display: grid; gap: 10px; background: var(--surface); }
+.rec h2 { font-size: 26px; text-transform: uppercase; letter-spacing: .03em; }
+.rec .acts { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* Sources */
+.sources { margin-top: 36px; display: grid; gap: 16px; }
+.sources h2 { font-size: 34px; text-transform: uppercase; letter-spacing: .03em; }
+.sources .intro { max-width: 74ch; color: var(--ink-2); }
+.tablewrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); }
+table { border-collapse: collapse; width: 100%; min-width: 760px; font-size: 15px; }
+th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+th { font-family: var(--font-display); font-size: 17px; letter-spacing: .05em; text-transform: uppercase; background: var(--surface-2); }
+td.k { font-weight: 600; white-space: nowrap; }
+.pill { display: inline-block; font-size: 12px; font-weight: 600; padding: 1px 8px; border-radius: 3px; background: var(--surface-2); border: 1px solid var(--line); white-space: nowrap; }
+.pill.s { background: var(--l0); color: var(--l0-ink); border-color: transparent; }
+.pill.d { background: var(--l1); color: var(--l1-ink); border-color: transparent; }
+.pill.a { background: var(--l2); color: var(--l2-ink); border-color: transparent; }
+.refs { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: 15px; color: var(--ink-2); max-width: 90ch; }
+.limits { max-width: 74ch; display: grid; gap: 10px; color: var(--ink-2); font-size: 16px; }
+.limits b { color: var(--ink); font-weight: 600; }
+footer { margin-top: 36px; font-size: 14px; color: var(--ink-2); max-width: 74ch; }
+/* Livability map */
+.livmap { position: relative; width: 100%; }
+.livmap canvas { position: absolute; display: block; image-rendering: auto; }
+.livmap svg { position: relative; display: block; width: 100%; height: auto; overflow: visible; }
+.livmap text { font-family: var(--font-body); fill: var(--ink-2); font-size: 12px; }
+.livmap .ax { fill: var(--ink); font-size: 13px; font-weight: 500; }
+.livmap .lbl { fill: var(--ink); font-weight: 600; font-size: 12px; paint-order: stroke; stroke: var(--surface); stroke-width: 3px; }
+.livmap .pl { fill: var(--purple); font-weight: 600; font-size: 12px; paint-order: stroke; stroke: var(--surface); stroke-width: 3px; }
+.cbar { display: grid; gap: 4px; max-width: 520px; }
+.cbar .ramp { height: 12px; border: 1px solid var(--line); }
+.cbar .ticks { display: flex; justify-content: space-between; font-size: 12px; color: var(--ink-2); }
+.cbar .t { font-size: 13px; color: var(--ink); font-weight: 500; }
+.livstat { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+.hatchkey::before { content: ""; display: inline-block; width: 14px; height: 11px; margin-right: 6px; vertical-align: -1px; background: repeating-linear-gradient(-45deg, var(--ink-2) 0 2px, transparent 2px 5px); border: 1px solid var(--ink-2); }
+.purplekey::before { content: ""; display: inline-block; width: 18px; height: 0; margin-right: 6px; vertical-align: 3px; border-top: 3px solid var(--purple); }
+.dashkey::before { content: ""; display: inline-block; width: 18px; height: 0; margin-right: 6px; vertical-align: 3px; border-top: 3px dashed var(--ink); }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<div class="tape" aria-hidden="true"></div>
+<div class="wrap">
+  <header class="hero">
+    <p class="eyebrow">Construction safety decision</p>
+    <h1>Do we send the crew out today?</h1>
+    <p class="lede">You run a construction company. The forecast says extreme heat, and a crew is due on site. <strong>If they work, someone could get heat sick.</strong> <strong>If they stay home, you lose a day and money.</strong> Use the sliders to see what changes the odds, and where you would draw the line.</p>
+    <p class="story" id="story" aria-live="polite"></p>
+  </header>
+
+  <div class="explain" id="explain">
+    <section>
+      <h2>The issue</h2>
+      <p>Heat illness runs from cramps and exhaustion to heat stroke, which can kill. In the US, about <b>40 workers a year</b> die from heat on the job, and <b>roughly a third of them are in construction</b> (OSHA, BLS). Many more are sickened and never counted.</p>
+      <p>Two things decide how dangerous a hot day is: <b>how hot it is</b> (the hazard) and <b>how ready the crew's bodies are</b> (the vulnerability). Workers who are new to the heat, or back from a week off, have not adapted yet. OSHA reports that <b>nearly half of heat deaths happen on a worker's first day</b>.</p>
+      <p>This page assumes the workers are <b>healthy adults aged 18 to 40</b>. For them it also asks a physics question, <b>livability</b>: how hard can a young body work in this weather and still shed all the heat it makes? Past that point heat piles up inside the body.</p>
+      <p>The company has to weigh a lost day against that risk. Both sides of the choice can be costed, but only you can decide how much risk is acceptable.</p>
+    </section>
+    <section>
+      <h2>What the sliders mean</h2>
+      <ul>
+        <li><b>Air temperature, humidity, sunshine.</b> These set the hazard. They combine into the <b>heat index</b>, how hot it feels to the body.</li>
+        <li><b>How hard the work is.</b> Effort in METs, where 1 is sitting still. Housework is about 3, dancing about 5, heavy lifting about 7.</li>
+        <li><b>Crew new to heat.</b> The vulnerability. Share of workers in their first week of hot work, or back after a week or more away.</li>
+        <li><b>Crew size.</b> How many people are exposed.</li>
+        <li><b>Start time, hours, breaks, protections.</b> What you control: when people are outside, for how long, and with shade, water and checks.</li>
+        <li><b>Your limit.</b> The most chance you will accept that at least one worker needs medical treatment for heat illness today.</li>
+      </ul>
+    </section>
+    <section>
+      <h2>What to notice</h2>
+      <ul>
+        <li><b>Heat multiplies risk.</b> Every +6°F of heat index roughly doubles it. A few degrees matter a lot.</li>
+        <li><b>Vulnerability multiplies it again.</b> Drag "crew new to heat" from 0% to 100% and the risk at every temperature goes up about ten times. The same hot day is mild for a veteran crew and dangerous for new hires.</li>
+        <li><b>They combine.</b> In the first graph, the lines fan apart as it gets hotter. The extra damage from 5 more degrees is much larger for an inexperienced crew.</li>
+        <li><b>Livability falls fast with heat and humidity.</b> In the map, watch the dot move toward the red zone as humidity rises. Raise "how hard the work is" and the dashed line moves left: hard work stops being livable at lower temperatures.</li>
+        <li><b>Timing is a lever.</b> Try starting at 5 AM and ending before the afternoon peak in the day chart.</li>
+        <li><b>Stopping is not always the answer.</b> Check the recommended plan at the bottom of the results.</li>
+      </ul>
+    </section>
+  </div>
+
+  <div class="score" id="score" aria-live="polite"></div>
+
+  <main class="app">
+    <section class="panel" aria-label="Controls">
+      <div class="group" id="g-weather">
+        <h2>The hazard: heat</h2>
+        <div class="presets" id="presets-w" role="group" aria-label="Example days"></div>
+      </div>
+      <div class="group" id="g-crew">
+        <h2>The vulnerability: your crew</h2>
+        <div class="presets" id="presets-c" role="group" aria-label="Example crews"></div>
+      </div>
+      <div class="group" id="g-plan">
+        <h2>Your plan</h2>
+        <p class="sub">Set the hours and protections you would really use.</p>
+      </div>
+      <div class="group" id="g-stakes">
+        <h2>What is at stake</h2>
+        <details class="adv"><summary>Money assumptions (defaults are sourced below)</summary><div class="group" id="g-adv"></div></details>
+      </div>
+    </section>
+
+    <section class="results" aria-label="Results">
+      <article class="card verdict" id="verdict"></article>
+
+      <article class="card"><div class="pad">
+        <h2>Livability: can a young adult shed the heat they make?</h2>
+        <p class="cap">For healthy adults aged 18 to 40. Colors show the hardest effort, in METs, that a body can keep up all day without heat building up inside it. Moving right (hotter) or up (more humid) shrinks the livable effort.</p>
+        <div class="livstat" id="livstat" aria-live="polite"></div>
+        <div class="livmap" id="chartL" role="img"></div>
+        <div class="cbar"><div class="ramp" id="ramp"></div><div class="ticks" id="rampticks"></div><div class="t">Livable effort (METs; 1 = sitting still)</div></div>
+        <div class="chartkey" id="keyL"></div>
+        <p class="notice" id="livnote" aria-live="polite"></p>
+      </div></article>
+
+      <article class="card"><div class="pad">
+        <h2>How heat and crew experience combine</h2>
+        <p class="cap">Expected number of workers treated for heat illness in one day, for your crew size and plan, at each heat index. Each line is a crew with a different share of workers new to heat.</p>
+        <div class="toggle" role="group" aria-label="Vertical scale">
+          <button type="button" id="sc-lin" aria-pressed="true">Linear scale</button>
+          <button type="button" id="sc-log" aria-pressed="false">Log scale</button>
+        </div>
+        <div class="chartbox" id="chartA" role="img"></div>
+        <div class="chartkey" id="keyA"></div>
+        <p class="notice" id="notice" aria-live="polite"></p>
+      </div></article>
+
+      <article class="card"><div class="pad">
+        <h2>The day, hour by hour</h2>
+        <p class="cap">How hot it feels across the day (heat index, including sun). Yellow shows when your crew is outside. The background bands are OSHA's heat risk levels.</p>
+        <div class="chartbox" id="chartB" role="img"></div>
+        <div class="chartkey" id="keyB"></div>
+      </div></article>
+
+      <div>
+        <h2 style="font-size:28px;text-transform:uppercase;letter-spacing:.03em;margin-bottom:14px">Three ways to play it</h2>
+        <div class="opts" id="opts"></div>
+      </div>
+
+      <section class="rec" id="rec" aria-live="polite"></section>
+    </section>
+  </main>
+
+  <section class="sources" id="sources">
+    <h2>Where the numbers come from</h2>
+    <p class="intro">Every default and slider range is tied to a source or labeled as an assumption. <span class="pill s">Sourced</span> means the value is quoted from the source. <span class="pill d">Derived</span> means I calculated it from sourced figures, shown in the notes. <span class="pill a">Assumption</span> means no source gives it, so it is my judgment and you should test it with the sliders.</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Number in the model</th><th>Value</th><th>Basis</th><th>Type</th></tr></thead>
+      <tbody>
+        <tr><td class="k">Heat index</td><td>NWS formula; +up to 15°F in full sun</td><td>The National Weather Service heat index regression (Rothfusz) with its humidity adjustments. NWS says full sunshine can raise the value by up to 15°F. <a href="#r-nws">[1]</a></td><td><span class="pill s">Sourced</span></td></tr>
+        <tr><td class="k">Risk bands</td><td>&lt;91, 91–103, 103–115, &gt;115°F</td><td>OSHA's heat index risk levels: lower, moderate, high, very high. <a href="#r-osha-hi">[2]</a></td><td><span class="pill s">Sourced</span></td></tr>
+        <tr><td class="k">Baseline illness rate</td><td>4.3 treated cases per 100,000 worker-days at 75–80°F</td><td>Washington State construction workers filed 70 heat illness claims per 100,000 full-time workers in July to September <a href="#r-wa">[3]</a>. Divided by about 65 workdays in the quarter gives 1.1 per 100,000 worker-days. Claims undercount, so I multiplied by 4. A review of California data found 3 to 6 times the official count <a href="#r-osha-bg">[4]</a>.</td><td><span class="pill d">Derived</span></td></tr>
+        <tr><td class="k">How fast risk rises with heat</td><td>×7 from 75–80°F to above 90°F, so ×2 for every 5.8°F</td><td>Workers' compensation claims for heat illness rise at least sevenfold on days above 90°F compared with days at 75–80°F. <a href="#r-wcri">[5]</a> That fits an exponential rise of 0.12 per °F. Above about 100°F the data is thin, so the curve there is an extrapolation.</td><td><span class="pill d">Derived</span></td></tr>
+        <tr><td class="k">New-to-heat multiplier</td><td>×10 for new or returning workers</td><td>OSHA says nearly half of heat deaths happen on a worker's first day and over 70% in the first week. <a href="#r-osha-new">[6]</a> Those shares imply a far larger multiplier than 10 once you count how few worker-days are first-week days, so 10 is conservative. The exact value is my judgment.</td><td><span class="pill a">Assumption</span></td></tr>
+        <tr><td class="k">Share of cases that are fatal</td><td>0.5%</td><td>OSHA's proposed heat rule counts about 3,300 reported heat illnesses with days away per year and assumes 7.5 times as many really occur, about 24,700. It counts about 40 deaths a year and assumes 3 times as many really occur, about 120. 120 ÷ 24,700 is about 0.5%. <a href="#r-fr">[7]</a><a href="#r-osha-bg">[4]</a></td><td><span class="pill d">Derived</span></td></tr>
+        <tr><td class="k">Lost output in heat</td><td>5% per °C of WBGT above 26°C, capped at 80%</td><td>Rice harvesters in India produced about 5% less per °C of wet-bulb globe temperature (WBGT) above 26°C. <a href="#r-sahu">[8]</a> WBGT is estimated from air temperature and humidity with the Australian Bureau of Meteorology approximation. <a href="#r-ncar">[9]</a> It is field data from heavy outdoor labor, not from construction.</td><td><span class="pill s">Sourced</span></td></tr>
+        <tr><td class="k">Cost of a treated case</td><td>$48,000</td><td>National Safety Council 2024 average cost per medically consulted work injury. It covers wages, medical, admin and employer costs. <a href="#r-nsc">[10]</a> Heat illness is often milder than the average injury, so this may be high. The slider lets you lower it.</td><td><span class="pill s">Sourced</span></td></tr>
+        <tr><td class="k">Cost of a death</td><td>$1,540,000</td><td>National Safety Council 2024 average cost per work death. <a href="#r-nsc">[10]</a> It does not capture the human loss.</td><td><span class="pill s">Sourced</span></td></tr>
+        <tr><td class="k">Labor cost</td><td>$55 per worker-hour</td><td>BLS reports average hourly earnings of about $39 for construction employees. <a href="#r-bls">[11]</a> Benefits are about 30% of total compensation, so $39 ÷ 0.7 is about $55.</td><td><span class="pill d">Derived</span></td></tr>
+        <tr><td class="k">Value of work billed</td><td>$75 per worker-hour</td><td>Labor cost plus about a third for overhead and profit.</td><td><span class="pill a">Assumption</span></td></tr>
+        <tr><td class="k">Cost of a lost day</td><td>$3,000</td><td>Idle equipment, schedule penalties and overhead for a small site.</td><td><span class="pill a">Assumption</span></td></tr>
+        <tr><td class="k">Livability model</td><td>Heat balance for a clothed young adult: heat made (METs) versus heat lost by skin and sweat</td><td>Follows the approach of Vanos et al. (2023): livability is the highest metabolic rate at which heat storage is zero. <a href="#r-vanos">[12]</a> I built a simplified version of their heat balance (skin temperature 36.3°C, maximum skin wetness 0.8, maximum sweat evaporation 260 W/m², light clothing 0.36 clo, 1 m/s wind, 1 MET = 1.2 W/kg). I tuned those numbers so the model reproduces five values the paper reports for young adults. See the check below the table.</td><td><span class="pill d">Derived</span></td></tr>
+        <tr><td class="k">Age group</td><td>Healthy adults, 18 to 40</td><td>The paper's "young" group. <a href="#r-vanos">[12]</a> Older adults can do 2.5 to 3 METs less in the same weather, so this page would be too optimistic for them.</td><td><span class="pill s">Sourced</span></td></tr>
+        <tr><td class="k">Sun on the body</td><td>Radiant heat adds up to 25°C to the air temperature at full midday sun (about 15°C when partly sunny)</td><td>The paper adds 15°C for partly sunny midday conditions. <a href="#r-vanos">[12]</a> I scale it with the sunshine slider and the sun's height during the day.</td><td><span class="pill a">Assumption</span></td></tr>
+        <tr><td class="k">3-hour survivability line</td><td>Core temperature reaches 43°C within 3 hours at rest, unclothed</td><td>Definition and heat storage limits from the paper: 43°C is where heat stroke is almost always fatal. <a href="#r-vanos">[12]</a> I tuned skin temperature (34.1°C) and maximum sweat (410 W/m²) so the line matches the paper's wet-bulb range for young adults, 25.8°C when dry to 34.1°C when humid. The shape in between is my model's.</td><td><span class="pill d">Derived</span></td></tr>
+        <tr><td class="k">Effort of the work</td><td>4 METs by default (2 to 8)</td><td>MET examples from the paper: sitting 1.5, housework 3, dancing 5, heavy lifting 7. <a href="#r-vanos">[12]</a> General construction work is often in the 3 to 5 range, but I have no single source, so test your own job.</td><td><span class="pill a">Assumption</span></td></tr>
+        <tr><td class="k">Core temperature limit</td><td>+1.0°C, so 38.0°C</td><td>NIOSH aims to keep deep body temperature at or below 38°C. <a href="#r-osha-tm">[13]</a> The page adds up heat stored beyond what the body can shed and reports the rise from 37.0°C. Stored heat becomes a temperature rise using the paper's heat capacity of 2.98 kJ per kg per °C. It ignores the body's own rise during exertion and any feedback, so it is a screening number.</td><td><span class="pill d">Derived</span></td></tr>
+        <tr><td class="k">Daily temperature swing</td><td>22°F low to high, humidity steady</td><td>A typical summer day in much of the US warms by 20 to 25°F from dawn to mid-afternoon.</td><td><span class="pill a">Assumption</span></td></tr>
+        <tr><td class="k">Breaks and protections</td><td>Rest time carries 25% of working risk; full protections cut risk by 50%</td><td>OSHA recommends water, rest and shade but gives no effect size, so these are placeholders.</td><td><span class="pill a">Assumption</span></td></tr>
+        <tr><td class="k">Crew of 40</td><td>5 to 200 workers</td><td>A mid-sized site crew. Change it to match yours.</td><td><span class="pill a">Assumption</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <h2 style="font-size:26px;margin-top:8px">Checking the livability model</h2>
+    <div class="tablewrap"><table style="min-width:560px">
+      <thead><tr><th>Case (young adult, 1 m/s wind)</th><th>Paper reports</th><th>This page's model</th></tr></thead>
+      <tbody id="checkrows"></tbody>
+    </table></div>
+    <p class="intro">These values were used to tune the model, so matching them is not an independent test. I have not checked it against other parts of the paper's maps. The paper's own code and full equations are on <a href="https://doi.org/10.5281/zenodo.10020136" target="_blank" rel="noopener">Zenodo</a>. Use those if you need exact values.</p>
+
+    <h2 style="font-size:26px;margin-top:8px">What the model leaves out</h2>
+    <div class="limits">
+      <p><b>Cold.</b> Extreme cold is also dangerous, but I could not find sourced rates good enough to build a model, so this page covers heat only.</p>
+      <p><b>Other hazards.</b> Lightning, smoke, ice, equipment limits and the details of each job.</p>
+      <p><b>Real risk is uncertain.</b> The rates come from insurance claims and OSHA estimates, which undercount. Treat the outputs as orders of magnitude for exploring a decision, not predictions. Your safety officer and local rules, including state heat standards, come first.</p>
+    </div>
+
+    <h2 style="font-size:26px;margin-top:8px">References</h2>
+    <ol class="refs">
+      <li id="r-nws">National Weather Service, <a href="https://www.weather.gov/safety/heat-index" target="_blank" rel="noopener">Heat Index</a> and <a href="https://www.wpc.ncep.noaa.gov/html/heatindex_equation.shtml" target="_blank" rel="noopener">the heat index equation</a>.</li>
+      <li id="r-osha-hi">OSHA, <a href="https://www.osha.gov/heat/heat-index" target="_blank" rel="noopener">Using the Heat Index: A Guide for Employers</a>.</li>
+      <li id="r-wa">Washington State heat illness claims by sector, as reported in <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9517246/" target="_blank" rel="noopener">Potential Impacts of Different Occupational Outdoor Heat Exposure Thresholds among Washington State Crop and Construction Workers</a> (Int. J. Environ. Res. Public Health, 2022).</li>
+      <li id="r-osha-bg">OSHA, <a href="https://osha.gov/heat-exposure/rulemaking/background" target="_blank" rel="noopener">Heat rulemaking background</a>, and the <a href="https://www.osha.gov/sites/default/files/Heat_SER_Background_Document_8-21-2023.pdf" target="_blank" rel="noopener">Heat SER background document</a> (2023).</li>
+      <li id="r-wcri">Workers Compensation Research Institute, <a href="https://www.wcrinet.org/news/detail/wcri-incidence-of-heat-related-illnesses-rises-dramatically-at-temperatures-above-90f" target="_blank" rel="noopener">Incidence of Heat-Related Illnesses Rises Dramatically at Temperatures Above 90°F</a> (Dec. 18, 2024), summarizing Thumula and Fomenko, <i>Heat-Related Illnesses in the Workplace</i>.</li>
+      <li id="r-osha-new">OSHA, <a href="https://www.osha.gov/heat-exposure/protecting-new-workers" target="_blank" rel="noopener">Protecting New Workers</a>, citing Tustin et al. (2018), <a href="https://www.cdc.gov/mmwr/volumes/67/wr/mm6726a1.htm" target="_blank" rel="noopener">Evaluation of Occupational Exposure Limits for Heat Stress in Outdoor Workers</a>, MMWR 67(26).</li>
+      <li id="r-fr">OSHA, <a href="https://www.federalregister.gov/documents/2024/08/30/2024-14824/heat-injury-and-illness-prevention-in-outdoor-and-indoor-work-settings" target="_blank" rel="noopener">Heat Injury and Illness Prevention in Outdoor and Indoor Work Settings</a>, proposed rule, Federal Register, Aug. 30, 2024.</li>
+      <li id="r-sahu">Sahu, Sett and Kjellstrom (2013), <a href="https://www.jstage.jst.go.jp/article/indhealth/51/4/51_2013-0006/_article" target="_blank" rel="noopener">Heat exposure, cardiovascular stress and work productivity in rice harvesters in India</a>, Industrial Health 51(4).</li>
+      <li id="r-ncar">Australian Bureau of Meteorology WBGT approximation, as implemented in <a href="https://ncar.github.io/geocat-applications/applications/humid_heat_metrics.html" target="_blank" rel="noopener">NCAR's humid heat metrics notebook</a>.</li>
+      <li id="r-nsc">National Safety Council, <a href="https://injuryfacts.nsc.org/work/costs/work-injury-costs/" target="_blank" rel="noopener">Injury Facts: Work Injury Costs</a> (2024 data).</li>
+      <li id="r-vanos">Vanos, Guzman-Echavarria, Baldwin, Bongers, Ebi and Jay (2023), <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC10687011/" target="_blank" rel="noopener">A physiological approach for assessing human survivability and liveability to heat in a changing climate</a>, Nature Communications 14, 7653.</li>
+      <li id="r-osha-tm">OSHA, <a href="https://osha.gov/otm/section-3-health-hazards/chapter-4" target="_blank" rel="noopener">Technical Manual, Section III, Chapter 4: Heat Stress</a>, which describes NIOSH's 38°C deep body temperature basis.</li>
+      <li id="r-bls">Bureau of Labor Statistics, <a href="https://www.bls.gov/iag/tgs/iag23.htm" target="_blank" rel="noopener">Construction industry at a glance</a>. Context on construction's share of heat deaths: CPWR figures reported by <a href="https://www.carriermanagement.com/news/2025/08/18/278494.htm" target="_blank" rel="noopener">Carrier Management</a>.</li>
+    </ol>
+    <footer>This is a teaching model for exploring a decision. It is not safety advice for a real jobsite.</footer>
+  </section>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  const $ = (id) => document.getElementById(id);
+
+  /* ---------- Model constants (see "Where the numbers come from") ---------- */
+  const R0 = 70e-5 / 65 * 4;          // treated cases per worker-day at the 75-80F reference (derived)
+  const REF_HI = 77.5;                // midpoint of the 75-80F reference days
+  const BETA = 0.12;                  // per F; ln(7)/17.5 = 0.11 from the ">=7x" finding, rounded up because 7x is a minimum
+  const RR_NEW = 10;                  // new-to-heat multiplier (assumption)
+  const DEATH_FRAC = (40 * 3) / (3300 * 7.5); // about 0.5% (derived)
+  const PROD_PER_C = 0.05, PROD_CAP = 0.8, WBGT_THRESH = 26; // Sahu et al. 2013
+  const REST_RISK = 0.25, PROT_MAX = 0.5;  // assumptions
+  const PROT_COST = 10;               // $ per worker per day at full protections (assumption)
+  const DIURNAL = 22;                 // F (assumption)
+  const DT = 0.25;
+  const BANDS = ['Lower', 'Moderate', 'High', 'Very high'];
+  const NORMAL = { start: 7, hours: 8, rest: 5, prot: 0 };
+
+  const DEFAULTS = {
+    temp: 98, rh: 45, sun: 60, newShare: 20, crew: 40, mets: 4,
+    start: 7, hours: 8, rest: 10, prot: 25, tol: 10,
+    wage: 55, bill: 75, lostDay: 3000, caseCost: 48000, deathCost: 1540000
+  };
+  const state = Object.assign({}, DEFAULTS);
+
+  const PRESETS_W = [
+    { name: 'Hot day', temp: 91, rh: 40, sun: 50 },
+    { name: 'Heat wave', temp: 98, rh: 45, sun: 60 },
+    { name: 'Dangerous', temp: 106, rh: 45, sun: 90 }
+  ];
+  const PRESETS_C = [
+    { name: 'Veteran crew', newShare: 0 },
+    { name: 'Mixed crew', newShare: 20 },
+    { name: 'New hires', newShare: 60 }
+  ];
+
+  /* ---------- Weather math ---------- */
+  function heatIndex(T, RH) {
+    let hi = 0.5 * (T + 61 + (T - 68) * 1.2 + RH * 0.094);
+    if ((hi + T) / 2 >= 80) {
+      hi = -42.379 + 2.04901523 * T + 10.14333127 * RH - 0.22475541 * T * RH - 0.00683783 * T * T
+        - 0.05481717 * RH * RH + 0.00122874 * T * T * RH + 0.00085282 * T * RH * RH - 0.00000199 * T * T * RH * RH;
+      if (RH < 13 && T >= 80 && T <= 112) hi -= ((13 - RH) / 4) * Math.sqrt((17 - Math.abs(T - 95)) / 17);
+      else if (RH > 85 && T >= 80 && T <= 87) hi += ((RH - 85) / 10) * ((87 - T) / 5);
+    }
+    return hi;
+  }
+  function wbgt(Tf, RH) { // Australian BoM approximation, result in C
+    const Tc = (Tf - 32) / 1.8;
+    const e = RH / 100 * 6.105 * Math.exp(17.27 * Tc / (237.7 + Tc));
+    return 0.567 * Tc + 0.393 * e + 3.94;
+  }
+  /* ---------- Livability physics (approach of Vanos et al. 2023; parameters tuned, see sources) ---------- */
+  const LP = { BSA: 1.8, mass: 70, hr: 4.7, hc: 8.3, Icl: 0.36 * 0.155, im: 0.3, wmax: 0.8, Tsk: 36.25, Esw: 260, TskS: 34.1, EswS: 410, METW: 1.2, CP: 2.98 };
+  const KG_PER_M2 = LP.mass / LP.BSA;          // body mass per m2 of skin
+  const WM2_PER_MET = LP.METW * KG_PER_M2;     // 1 MET = 1.2 W/kg
+  const psat = (T) => 0.6105 * Math.exp(17.27 * T / (T + 237.3)); // kPa, T in C
+  function balance(TaC, RH, dTr, clothed) {
+    const hc = LP.hc, hr = LP.hr, Icl = clothed ? LP.Icl : 0, fcl = 1 + 1.97 * Icl, Re = clothed ? Icl / (LP.im * 16.5) : 0;
+    const Tsk = clothed ? LP.Tsk : LP.TskS, Esw = clothed ? LP.Esw : LP.EswS;
+    const To = (hr * (TaC + dTr) + hc * TaC) / (hr + hc);
+    const Pa = psat(TaC) * RH / 100;
+    const dry = (Tsk - To) / (Icl + 1 / (fcl * (hc + hr)));
+    const Emax = LP.wmax * (psat(Tsk) - Pa) / (Re + 1 / (fcl * 16.5 * hc));
+    return { de: dry + Math.max(0, Math.min(Emax, Esw)), k: 0.0014 * (34 - TaC) + 0.0173 * (5.87 - Pa) };
+  }
+  const livMETs = (TaC, RH, dTr) => { const b = balance(TaC, RH, dTr, true); return Math.max(0, b.de / (1 - b.k) / WM2_PER_MET); };
+  function survivable(TaC, RH, dTr) { // 3 hours at rest (1.5 METs), unclothed, core must stay under 43C
+    const b = balance(TaC, RH, dTr, false), M0 = 1.5 * WM2_PER_MET;
+    return b.de + M0 * b.k >= M0 - 1.65 * KG_PER_M2;
+  }
+  function rootTa(f, target) { // f decreases with air temperature; returns the air temperature (C) where f = target
+    let lo = 15, hi = 75;
+    if (f(lo) < target) return null;
+    if (f(hi) > target) return hi;
+    for (let i = 0; i < 28; i++) { const m = (lo + hi) / 2; if (f(m) >= target) lo = m; else hi = m; }
+    return lo;
+  }
+  const toC = (F) => (F - 32) / 1.8, toF = (C) => C * 1.8 + 32;
+  function wetBulb(Ta, RH) { // Stull (2011), C
+    return Ta * Math.atan(0.151977 * Math.sqrt(RH + 8.313659)) + Math.atan(Ta + RH) - Math.atan(RH - 1.676331) + 0.00391838 * Math.pow(RH, 1.5) * Math.atan(0.023101 * RH) - 4.686035;
+  }
+  const RAMP = [[1.5, [214, 69, 46]], [3, [240, 160, 48]], [5, [233, 214, 77]], [6.5, [124, 196, 122]], [9, [30, 143, 126]]];
+  function rampColor(L) {
+    if (L <= RAMP[0][0]) return RAMP[0][1];
+    for (let i = 1; i < RAMP.length; i++) if (L <= RAMP[i][0]) {
+      const [a, ca] = RAMP[i - 1], [b, cb] = RAMP[i], t = (L - a) / (b - a);
+      return [ca[0] + (cb[0] - ca[0]) * t, ca[1] + (cb[1] - ca[1]) * t, ca[2] + (cb[2] - ca[2]) * t];
+    }
+    return RAMP[RAMP.length - 1][1];
+  }
+
+  function airT(t) {
+    const tmax = state.temp, tmin = state.temp - DIURNAL;
+    const u = t < 6 ? t + 24 : t;
+    if (u <= 15) { const f = (u - 6) / 9; return tmin + (tmax - tmin) * (1 - Math.cos(Math.PI * f)) / 2; }
+    const f = (u - 15) / 15;
+    return tmax - (tmax - tmin) * (1 - Math.cos(Math.PI * f)) / 2;
+  }
+  const sunAngle = (t) => (t > 6 && t < 20 ? Math.sin(Math.PI * (t - 6) / 14) : 0);
+  const felt = (t) => heatIndex(airT(t), state.rh) + 15 * (state.sun / 100) * sunAngle(t);
+  const bandOf = (F) => (F < 91 ? 0 : F < 103 ? 1 : F < 115 ? 2 : 3);
+  const rr = (HI) => Math.exp(BETA * (Math.max(HI, 70) - REF_HI));
+  const vuln = (shareNew) => 1 + shareNew * (RR_NEW - 1);
+  const restM = (rest) => { const f = 1 - rest / 60; return f + (1 - f) * REST_RISK; };
+  const protM = (prot) => 1 - PROT_MAX * prot / 100;
+
+  const dTrAt = (t) => 25 * (state.sun / 100) * sunAngle(t); // radiant heat on the body, C (paper: +15 C partly sunny)
+  let CF = [], CW = [], CLV = [], CDE = [], CK = [], CDR = [];
+  function buildCache() {
+    CF = []; CW = []; CLV = []; CDE = []; CK = []; CDR = [];
+    for (let k = 0; k < 30 * 4; k++) {
+      const t = (k + 0.5) * DT, Tf = airT(t), Tc = toC(Tf);
+      CF.push(felt(t)); CW.push(wbgt(Tf, state.rh));
+      const bw = balance(Tc, state.rh, dTrAt(t), true), br = balance(Tc, state.rh, 0, true);
+      CLV.push(Math.max(0, bw.de / (1 - bw.k) / WM2_PER_MET)); CDE.push(bw.de); CK.push(bw.k); CDR.push(br.de);
+    }
+  }
+
+  /* ---------- Simulation ---------- */
+  function sim(plan) {
+    const s = state, n = Math.round(plan.hours / DT), k0 = Math.round(plan.start / DT);
+    const f = 1 - plan.rest / 60, v = vuln(s.newShare / 100), rm = restM(plan.rest), pm = protM(plan.prot);
+    let cases = 0, prod = 0, peak = null, sumRR = 0;
+    const Mw = s.mets * WM2_PER_MET, Mr = 1.5 * WM2_PER_MET;
+    let rise = 0, peakRise = 0, Lmin = null, tL = null, worstSw = -Infinity, worstSr = 0;
+    for (let i = 0; i < n; i++) {
+      const F = CF[k0 + i], r = rr(F);
+      const Sw = Mw * (1 - CK[k0 + i]) - CDE[k0 + i], Sr = Mr * (1 - CK[k0 + i]) - CDR[k0 + i]; // W/m2 of heat stored while working / resting
+      rise = Math.max(0, rise + (f * Sw + (1 - f) * Sr) / KG_PER_M2 * DT * 3600 / (LP.CP * 1000));
+      if (rise > peakRise) peakRise = rise;
+      if (Lmin === null || CLV[k0 + i] < Lmin) { Lmin = CLV[k0 + i]; tL = (k0 + i + 0.5) * DT; }
+      if (Sw > worstSw) { worstSw = Sw; worstSr = Sr; }
+      cases += s.crew * DT * (R0 / 8) * r * v * rm * pm;
+      sumRR += r * DT;
+      const loss = Math.min(PROD_CAP, Math.max(0, PROD_PER_C * (CW[k0 + i] - WBGT_THRESH)));
+      prod += s.crew * DT * f * (1 - loss);
+      if (peak === null || F > peak) peak = F;
+    }
+    const deaths = cases * DEATH_FRAC;
+    const P = 1 - Math.exp(-cases), Pdeath = 1 - Math.exp(-deaths);
+    const meanRR = plan.hours > 0 ? sumRR / plan.hours : null;
+    const done = prod / (s.crew * 8);
+    const value = s.bill * prod, labor = s.wage * s.crew * plan.hours;
+    const protCost = plan.hours > 0 ? PROT_COST * (plan.prot / 100) * s.crew : 0;
+    const sched = s.lostDay * Math.max(0, 1 - done);
+    const injury = cases * s.caseCost + deaths * s.deathCost;
+    const net = value - labor - protCost - sched - injury;
+    let reqRest = 0;
+    if (n > 0 && worstSw > 0) reqRest = worstSr >= 0 ? 60 : Math.round((1 - (-worstSr) / (worstSw - worstSr)) * 60);
+    const sustain = peakRise <= 1.0 + 1e-9;
+    return { plan, cases, deaths, P, Pdeath, done, peak, meanRR, net, peakRise, Lmin, tL, reqRest, sustain };
+  }
+  function solve() {
+    let best = null;
+    for (let st = 4; st <= 14; st++) for (let h = 2; h <= 10; h += 0.5) for (const r of [10, 15, 20, 30, 45]) for (const p of [50, 75, 100]) { // always keeps basic water, rest and shade
+      const res = sim({ start: st, hours: h, rest: r, prot: p });
+      if (res.P <= state.tol / 100 && res.sustain && (!best || res.net > best.net)) best = res;
+    }
+    return best;
+  }
+  // expected cases at a constant heat index for a given share of new workers, using the current plan
+  function casesAt(HI, shareNew, plan) {
+    return state.crew * plan.hours * (R0 / 8) * rr(HI) * vuln(shareNew) * restM(plan.rest) * protM(plan.prot);
+  }
+
+  /* ---------- Formatting ---------- */
+  function fmtTime(h) {
+    h = ((h % 24) + 24) % 24;
+    let hh = Math.floor(h), mm = Math.round((h - hh) * 60);
+    if (mm === 60) { hh += 1; mm = 0; }
+    const ap = hh >= 12 && hh < 24 ? 'PM' : 'AM';
+    return (hh % 12 === 0 ? 12 : hh % 12) + ':' + String(mm).padStart(2, '0') + ' ' + ap;
+  }
+  const fmtHourShort = (h) => (h === 12 ? 'Noon' : (h % 12 === 0 ? 12 : h % 12) + (h % 24 < 12 ? 'am' : 'pm'));
+  function money(n) { const r = Math.round(n / 100) * 100, s = '$' + Math.abs(r).toLocaleString('en-US'); return r < 0 ? '−' + s : s; }
+  function oneIn(p) {
+    if (p < 0.001) return 'less than 1 in 1,000';
+    if (p >= 0.5) return Math.round(p * 100) + ' in 100';
+    return '1 in ' + Math.round(1 / p).toLocaleString('en-US');
+  }
+  const pct = (p) => (p < 0.001 ? '<0.1%' : (p * 100 < 10 ? (p * 100).toFixed(1) : Math.round(p * 100)) + '%');
+  const casesTxt = (c) => (c < 0.01 ? 'under 0.01' : c < 0.1 ? c.toFixed(2) : c < 10 ? c.toFixed(1) : String(Math.round(c)));
+  const sunWord = (v) => (v < 20 ? 'Overcast' : v < 50 ? 'Partly sunny' : v < 80 ? 'Mostly sunny' : 'Full sun');
+  const protWord = (v) => (v === 0 ? 'None' : v <= 33 ? 'Basic' : v <= 66 ? 'Good' : 'Full');
+
+  /* ---------- Controls ---------- */
+  const CONTROLS = [
+    { g: 'g-weather', key: 'temp', label: 'Afternoon high air temperature', min: 80, max: 115, step: 1, fmt: (v) => v + '°F', lo: '80°F', hi: '115°F',
+      note: () => 'Peaks at 3 PM. Cooler in the morning (22°F lower at dawn).' },
+    { g: 'g-weather', key: 'rh', label: 'Humidity', min: 10, max: 90, step: 5, fmt: (v) => v + '%', lo: 'Dry air', hi: 'Muggy', note: () => 'Humid air stops sweat from cooling the body, so it feels hotter.' },
+    { g: 'g-weather', key: 'sun', label: 'Sunshine', min: 0, max: 100, step: 10, fmt: sunWord, lo: 'Overcast', hi: 'Full sun', note: () => 'Full sun adds up to 15°F to the heat index (National Weather Service).' },
+    { g: 'g-crew', key: 'newShare', label: 'Crew new to heat', min: 0, max: 100, step: 5, fmt: (v) => v + '%', lo: 'Everyone adapted', hi: 'Everyone new',
+      note: () => 'Workers in their first week of hot work, or back after a week or more away. Their bodies have not adapted. Modeled as 10 times the risk.' },
+    { g: 'g-crew', key: 'mets', label: 'How hard the work is', min: 2, max: 8, step: 0.5, fmt: (v) => v + ' METs', lo: 'Housework (3)', hi: 'Heavy lifting (7)',
+      note: () => 'Effort in METs: sitting 1.5, housework 3, brisk walking 4, dancing 5, heavy lifting 7. The crew is assumed to be healthy adults aged 18 to 40.' },
+    { g: 'g-crew', key: 'crew', label: 'Crew size', min: 5, max: 200, step: 5, fmt: (v) => v + ' workers', lo: '5', hi: '200' },
+    { g: 'g-plan', key: 'start', label: 'Start time', min: 4, max: 14, step: 0.5, fmt: fmtTime, lo: '4:00 AM', hi: '2:00 PM' },
+    { g: 'g-plan', key: 'hours', label: 'Hours outside', min: 0, max: 10, step: 0.5, fmt: (v) => (v === 0 ? 'Called off' : v + ' h'), lo: 'Stop work', hi: '10 hours',
+      note: () => (state.hours > 0 ? 'Working ' + fmtTime(state.start) + ' to ' + fmtTime(state.start + state.hours) + '.' : 'Nobody works outside today.') },
+    { g: 'g-plan', key: 'rest', label: 'Rest break each hour', min: 0, max: 45, step: 5, fmt: (v) => (v === 0 ? 'None' : v + ' min'), lo: 'None', hi: '45 min', note: () => 'Breaks happen in the shade, with water.' },
+    { g: 'g-plan', key: 'prot', label: 'Protections', min: 0, max: 100, step: 25, fmt: protWord, lo: 'None', hi: 'Full', note: () => 'Full means shade, cold water, cooling towels, supervisor checks and a buddy system. Assumed to cut risk by up to half.' },
+    { g: 'g-stakes', key: 'tol', label: 'Your limit', min: 1, max: 50, step: 1, fmt: (v) => v + '% (' + oneIn(v / 100) + ')', lo: 'Very strict', hi: 'Relaxed',
+      note: () => 'The most chance you will accept, on any one day, that at least one worker needs medical treatment for heat illness. Only you can set this line.' },
+    { g: 'g-adv', key: 'wage', label: 'Labor cost per worker-hour', min: 30, max: 90, step: 1, fmt: money, lo: '$30', hi: '$90' },
+    { g: 'g-adv', key: 'bill', label: 'Work billed per worker-hour', min: 40, max: 150, step: 5, fmt: money, lo: '$40', hi: '$150' },
+    { g: 'g-adv', key: 'lostDay', label: 'Cost of a lost workday', min: 0, max: 20000, step: 500, fmt: money, lo: '$0', hi: '$20,000', note: () => 'Idle equipment, schedule penalties and overhead.' },
+    { g: 'g-adv', key: 'caseCost', label: 'Cost of a treated heat illness', min: 5000, max: 100000, step: 1000, fmt: money, lo: '$5,000', hi: '$100,000', note: () => 'National Safety Council average for a medically treated work injury.' },
+    { g: 'g-adv', key: 'deathCost', label: 'Cost of a heat death', min: 500000, max: 5000000, step: 50000, fmt: money, lo: '$0.5M', hi: '$5M', note: () => 'Economic cost only. It does not include the human loss.' }
+  ];
+
+  function buildControls() {
+    for (const c of CONTROLS) {
+      const el = document.createElement('div');
+      el.className = 'ctl';
+      el.innerHTML =
+        '<div class="row"><label class="t" for="in-' + c.key + '">' + c.label + '</label><output id="out-' + c.key + '" class="num" for="in-' + c.key + '"></output></div>' +
+        '<input type="range" id="in-' + c.key + '" min="' + c.min + '" max="' + c.max + '" step="' + c.step + '">' +
+        '<div class="hint"><span>' + c.lo + '</span><span>' + c.hi + '</span></div>' +
+        (c.note ? '<p class="note" id="note-' + c.key + '"></p>' : '');
+      const group = $(c.g);
+      if (c.g === 'g-weather') group.insertBefore(el, $('presets-w'));
+      else if (c.g === 'g-crew') group.insertBefore(el, $('presets-c'));
+      else group.appendChild(el);
+      c.el = el; c.input = el.querySelector('input');
+      c.input.addEventListener('input', () => { state[c.key] = parseFloat(c.input.value); update(); });
+    }
+    const mk = (box, list) => list.forEach((p) => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'btn'; b.textContent = p.name;
+      b.addEventListener('click', () => { Object.assign(state, p); delete state.name; update(); });
+      $(box).appendChild(b);
+    });
+    mk('presets-w', PRESETS_W); mk('presets-c', PRESETS_C);
+    $('sc-lin').addEventListener('click', () => { logScale = false; update(); });
+    $('sc-log').addEventListener('click', () => { logScale = true; update(); });
+  }
+  function syncControls() {
+    for (const c of CONTROLS) {
+      c.input.value = state[c.key];
+      c.input.style.setProperty('--p', ((state[c.key] - c.min) / (c.max - c.min) * 100) + '%');
+      $('out-' + c.key).textContent = c.fmt(state[c.key]);
+      if (c.note) $('note-' + c.key).textContent = c.note();
+    }
+    $('sc-lin').setAttribute('aria-pressed', String(!logScale));
+    $('sc-log').setAttribute('aria-pressed', String(logScale));
+  }
+  let logScale = false;
+
+  /* ---------- Analysis ---------- */
+  function analyse() {
+    buildCache();
+    const yours = sim({ start: state.start, hours: state.hours, rest: state.rest, prot: state.prot });
+    const normal = sim(NORMAL);
+    const stop = sim({ start: 7, hours: 0, rest: 0, prot: 0 });
+    const rec = solve();
+    const tol = state.tol / 100;
+    let kind, title, lvl, chip;
+    if (state.hours === 0) { kind = 'stop'; title = 'Called off'; chip = 'Stop'; lvl = 'lvn'; }
+    else if (yours.P > tol || !yours.sustain) { kind = 'over'; title = 'Change the plan'; chip = 'Change plan'; lvl = 'lv3'; }
+    else if (yours.net < stop.net) { kind = 'costly'; title = 'Safe, but costly'; chip = 'Safe, costly'; lvl = 'lv1'; }
+    else { kind = 'go'; title = 'Go'; chip = 'Go'; lvl = 'lv0'; }
+    return { yours, normal, stop, rec, tol, kind, title, chip, lvl };
+  }
+  function dayPeak() {
+    let best = null, bt = 15;
+    for (let k = 6 * 4; k < 20 * 4; k++) if (best === null || CF[k] > best) { best = CF[k]; bt = (k + 0.5) * DT; }
+    return { F: best, t: bt };
+  }
+
+  /* ---------- Rendering ---------- */
+  function renderStory() {
+    const ex = dayPeak(), b = BANDS[bandOf(ex.F)].toLowerCase();
+    $('story').innerHTML = 'The high today is <b>' + state.temp + '°F</b> with <b>' + state.rh + '%</b> humidity and ' + sunWord(state.sun).toLowerCase() +
+      '. By ' + fmtTime(Math.round(ex.t * 2) / 2) + ' it feels like <b>' + Math.round(ex.F) + '°F</b>, which OSHA rates a <b>' + b + '</b> heat risk. ' +
+      'You have <b>' + state.crew + ' workers</b> (healthy adults aged 18 to 40) due on site, and <b>' + state.newShare + '%</b> of them are new to working in heat.';
+  }
+  function planText(p) {
+    return fmtTime(p.start) + ' to ' + fmtTime(p.start + p.hours) + ', ' + (p.rest ? p.rest + ' min rest each hour' : 'no scheduled breaks') + ', ' + (p.prot === 0 ? 'no extra protections' : protWord(p.prot).toLowerCase() + ' protections');
+  }
+  function renderScore(A) {
+    const s = $('score'), y = A.yours;
+    s.className = 'score ' + A.lvl;
+    s.innerHTML = '<span class="chip">' + A.chip + '</span><div class="meta">' +
+      (state.hours === 0 ? '<span><b>Nobody is exposed</b></span>' : '<span><b class="num">' + oneIn(y.P) + '</b> chance someone needs treatment</span>') +
+      '<span class="num"><b>' + money(y.net) + '</b> <span class="dim">net for the day</span></span>' +
+      (state.hours === 0 ? '' : '<span class="dim num">stopping: ' + money(A.stop.net) + '</span>') + '</div>';
+  }
+  function renderVerdict(A) {
+    const y = A.yours, el = $('verdict');
+    let text;
+    if (A.kind === 'stop') text = 'Nobody goes out, so nobody gets heat sick. The lost day costs about ' + money(-A.stop.net) + '.';
+    else if (A.kind === 'over') {
+      const risky = y.P > A.tol, unsust = !y.sustain;
+      text = (risky ? 'As planned, there is about a <b>' + oneIn(y.P) + '</b> chance that at least one worker needs medical treatment for heat illness today. Your limit is ' + oneIn(A.tol) + '. Expect about ' + casesTxt(y.cases) + ' workers treated.' : 'The chance of a treated illness is inside your limit, at about ' + oneIn(y.P) + '.') +
+        (unsust ? ' <b>It is also not livable at this pace.</b> At ' + state.mets + ' METs, young workers cannot shed the heat they make, and their core temperature would climb about <b>+' + y.peakRise.toFixed(1) + '\u00B0C</b> past the 38.0\u00B0C limit.' : '');
+    }
+    else if (A.kind === 'costly') text = 'This plan stays inside your limit, at about ' + oneIn(y.P) + '. But it comes to ' + money(y.net) + ', and stopping comes to ' + money(A.stop.net) + '. You would lose less by calling it off.';
+    else text = 'This plan stays inside your limit, at about ' + oneIn(y.P) + ' for a treated illness, and it comes out ' + money(y.net - A.stop.net) + ' ahead of stopping.';
+    const lim = Math.ceil(state.tol - 1e-9);
+    let cells = '';
+    for (let i = 0; i < 100; i++) cells += '<i class="' + (i < lim ? 'lim' : '') + '" style="--f:' + Math.max(0, Math.min(1, y.P * 100 - i)).toFixed(2) + '"></i>';
+    el.className = 'card verdict ' + A.lvl;
+    el.innerHTML =
+      '<div class="head"><h2>' + A.title + '</h2><span class="big num">' + (state.hours === 0 ? '' : pct(y.P) + ' chance of a treated illness') + '</span></div>' +
+      '<div class="body"><p>' + text + '</p>' +
+      (state.hours > 0 ? '<p class="cap">At the hottest moment of this plan it feels like <b class="num">' + Math.round(y.peak) + '°F</b>. The chance that a worker dies today is <b>' + (y.Pdeath < 0.001 ? '' : 'about ') + oneIn(y.Pdeath) + '</b> for the whole crew.</p>' : '') + '</div>' +
+      '<div class="days"><div class="grid100" role="img" aria-label="Out of 100 days like this, about ' + Math.round(y.P * 100) + ' would have at least one treated heat illness">' + cells + '</div>' +
+      '<div class="key"><span>Day with a treated illness</span><span>Your limit</span></div>' +
+      '<p class="cap">Picture 100 days with this exact weather and plan.</p></div>';
+  }
+  function renderOptions(A) {
+    const items = [
+      { cls: '', name: 'Work as normal', what: fmtTime(NORMAL.start) + ' to ' + fmtTime(NORMAL.start + NORMAL.hours) + ', the usual breaks, no extra protections.', r: A.normal },
+      { cls: 'you', name: 'Your plan', what: state.hours === 0 ? 'Everyone stays home.' : planText(A.yours.plan) + '.', r: A.yours },
+      { cls: '', name: 'Stop today', what: 'Everyone stays home. You pay for the lost day.', r: A.stop }
+    ];
+    const bestNet = Math.max(...items.map((i) => i.r.net));
+    $('opts').innerHTML = items.map((it) => {
+      const r = it.r, stopped = r.plan.hours === 0, within = r.P <= A.tol;
+      const lv = stopped ? 'lvn' : within ? 'lv0' : 'lv3';
+      return '<div class="opt ' + it.cls + '"><h3>' + it.name + '</h3><p class="what">' + it.what + '</p>' +
+        '<span class="tag ' + lv + '">' + (stopped ? 'No exposure' : within ? 'Inside your limit' : 'Over your limit') + '</span>' +
+        '<div class="odds num">' + (stopped ? 'None' : oneIn(r.P).replace('less than ', '< ')) + '<small>chance of at least one treated illness</small></div>' +
+        '<dl><div><dt>Workers treated</dt><dd>' + (stopped ? '0' : casesTxt(r.cases)) + '</dd></div>' +
+        '<div><dt>Core temp if pace holds</dt><dd class="' + (!stopped && !r.sustain ? 'neg' : '') + '">' + (stopped ? '\u2014' : (37 + Math.min(r.peakRise, 6)).toFixed(1) + '\u00B0C') + '</dd></div>' +
+        '<div><dt>Work done</dt><dd>' + Math.round(r.done * 100) + '% of a day</dd></div>' +
+        '<div><dt>Net for the day</dt><dd class="' + (r.net >= 0 ? 'pos' : 'neg') + '">' + money(r.net) + (r.net === bestNet ? ' ★' : '') + '</dd></div></dl></div>';
+    }).join('');
+  }
+  function renderRec(A) {
+    const el = $('rec'), rec = A.rec;
+    let html;
+    if (!rec) {
+      html = '<h2>What would work</h2><p>No outdoor plan keeps the chance of a treated heat illness under <b>' + oneIn(A.tol) + '</b> in these conditions. The safest call is to <b>stop work today</b>, or to raise your limit.</p>' +
+        '<div class="acts">' + (state.hours === 0 ? '' : '<button class="btn primary" type="button" data-act="stop">Call it off</button>') + '</div>';
+    } else if (rec.net < A.stop.net) {
+      html = '<h2>What would work</h2><p>The cheapest plan that stays under <b>' + oneIn(A.tol) + '</b> is ' + planText(rec.plan) + '. It is safe enough, but it comes to ' + money(rec.net) + ' against ' + money(A.stop.net) + ' for stopping. <b>Calling it off costs you less.</b></p>' +
+        '<div class="acts"><button class="btn primary" type="button" data-act="stop">Call it off</button><button class="btn ghost" type="button" data-act="rec">Use the plan anyway</button></div>';
+    } else {
+      const same = Math.abs(rec.plan.start - state.start) < 0.01 && rec.plan.hours === state.hours && rec.plan.rest === state.rest && rec.plan.prot === state.prot;
+      html = '<h2>What would work</h2><p>The plan that makes the most money while staying under <b>' + oneIn(A.tol) + '</b>: <b>' + planText(rec.plan) + '</b>. That gives about a ' + oneIn(rec.P) + ' chance of a treated illness, ' + Math.round(rec.done * 100) + '% of a full day of work, and ' + money(rec.net) + ' net.' + (same ? ' This is your current plan.' : '') + '</p>' +
+        '<div class="acts">' + (same ? '' : '<button class="btn primary" type="button" data-act="rec">Use this plan</button>') + (state.hours === 0 ? '' : '<button class="btn ghost" type="button" data-act="stop">Call it off instead</button>') + '</div>';
+    }
+    el.innerHTML = html;
+    el.querySelectorAll('button').forEach((b) => b.addEventListener('click', () => {
+      if (b.dataset.act === 'stop') state.hours = 0;
+      else Object.assign(state, { start: rec.plan.start, hours: rec.plan.hours, rest: rec.plan.rest, prot: rec.plan.prot });
+      update();
+    }));
+  }
+
+  /* ---------- Charts ---------- */
+  const BAND_EDGES = [[0, 91, 0], [91, 103, 1], [103, 115, 2], [115, 400, 3]];
+  function bandRects(X, Y, m, W, yMin, yMax) {
+    let s = '';
+    for (const [lo, hi, i] of BAND_EDGES) {
+      const a = Math.max(lo, yMin), b = Math.min(hi, yMax);
+      if (b <= a) continue;
+      const y1 = Y(b), y2 = Y(a);
+      s += '<rect class="b' + i + '" x="' + m.l + '" y="' + y1.toFixed(1) + '" width="' + (W - m.l - m.r) + '" height="' + (y2 - y1).toFixed(1) + '" style="fill-opacity:var(--band-op)"/>';
+      if (y2 - y1 >= 16) s += '<text class="bl" x="' + (m.l + 6) + '" y="' + ((y1 + y2) / 2 + 4).toFixed(1) + '">' + BANDS[i] + '</text>';
+    }
+    return s;
+  }
+  function niceMax(v) {
+    const p = Math.pow(10, Math.floor(Math.log10(v))), f = v / p;
+    return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * p;
+  }
+
+  function drawChartB(A) { // heat index across the day
+    const box = $('chartB'), W = Math.max(300, Math.floor(box.clientWidth || 600)), H = Math.round(Math.min(340, Math.max(280, W * 0.5)));
+    const m = { l: 56, r: 12, t: 28, b: 52 };
+    const t0 = 4, t1 = 22, pts = [];
+    for (let t = t0; t <= t1 + 1e-9; t += 0.25) pts.push({ t, F: felt(t), A: airT(t) });
+    const yMin = 70, yMax = Math.max(130, Math.ceil((Math.max(...pts.map((p) => p.F)) + 4) / 10) * 10);
+    const X = (t) => m.l + (t - t0) / (t1 - t0) * (W - m.l - m.r);
+    const Y = (v) => m.t + (yMax - v) / (yMax - yMin) * (H - m.t - m.b);
+    let svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="' + W + '" height="' + H + '" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">';
+    svg += bandRects(X, Y, m, W, yMin, yMax);
+    const step = yMax - yMin > 85 ? 20 : 10;
+    for (let v = Math.ceil(yMin / step) * step; v <= yMax; v += step) {
+      svg += '<line x1="' + m.l + '" x2="' + (W - m.r) + '" y1="' + Y(v).toFixed(1) + '" y2="' + Y(v).toFixed(1) + '" stroke="var(--line)" stroke-opacity=".7"/>';
+      svg += '<text x="' + (m.l - 6) + '" y="' + (Y(v) + 4).toFixed(1) + '" text-anchor="end" class="num">' + v + '</text>';
+    }
+    const xs = W >= 520 ? 2 : 4;
+    for (let t = t0; t <= t1; t += xs) svg += '<text x="' + X(t).toFixed(1) + '" y="' + (H - m.b + 16) + '" text-anchor="middle">' + fmtHourShort(t) + '</text>';
+    svg += '<text class="ax" x="' + ((m.l + W - m.r) / 2) + '" y="' + (H - 8) + '" text-anchor="middle">Time of day (local time)</text>';
+    svg += '<text class="ax" transform="translate(14 ' + ((m.t + H - m.b) / 2) + ') rotate(-90)" text-anchor="middle">Heat index (°F)</text>';
+    const p = A.yours.plan;
+    if (p.hours > 0) {
+      const a = X(Math.max(t0, p.start)), b = X(Math.min(t1, p.start + p.hours));
+      svg += '<rect x="' + a.toFixed(1) + '" y="' + m.t + '" width="' + Math.max(0, b - a).toFixed(1) + '" height="' + (H - m.t - m.b) + '" fill="var(--accent)" fill-opacity=".28"/>';
+      svg += '<rect x="' + a.toFixed(1) + '" y="' + (m.t - 6) + '" width="' + Math.max(0, b - a).toFixed(1) + '" height="6" fill="var(--accent)" stroke="var(--tape)"/>';
+      const lab = 'Crew outside ' + fmtTime(p.start) + ' to ' + fmtTime(p.start + p.hours), end = a + lab.length * 6.6 > W - m.r;
+      svg += '<text class="lbl" x="' + (end ? W - m.r : a).toFixed(1) + '" y="' + (m.t - 11) + '" text-anchor="' + (end ? 'end' : 'start') + '" style="font-size:12px">' + lab + '</text>';
+    } else svg += '<text class="lbl" x="' + m.l + '" y="' + (m.t - 10) + '" style="font-size:12px">Work called off</text>';
+    const path = (key, lo, hi) => pts.filter((q) => q.t >= lo - 1e-9 && q.t <= hi + 1e-9).map((q, i) => (i ? 'L' : 'M') + X(q.t).toFixed(1) + ' ' + Y(q[key]).toFixed(1)).join('');
+    svg += '<path d="' + path('A', t0, t1) + '" fill="none" stroke="var(--ink-2)" stroke-width="1.6" stroke-dasharray="5 4"/>';
+    svg += '<path d="' + path('F', t0, t1) + '" fill="none" stroke="var(--ink)" stroke-width="2" stroke-opacity=".75"/>';
+    if (p.hours > 0) svg += '<path d="' + path('F', p.start, Math.min(t1, p.start + p.hours)) + '" fill="none" stroke="var(--ink)" stroke-width="4.5" stroke-linecap="round"/>';
+    svg += '<text class="lbl" x="' + X(19.2).toFixed(1) + '" y="' + (Y(felt(19.2)) - 9).toFixed(1) + '" text-anchor="middle">Heat index</text>';
+    svg += '<text x="' + X(19.2).toFixed(1) + '" y="' + (Y(airT(19.2)) + 17).toFixed(1) + '" text-anchor="middle">Air temp</text>';
+    if (p.hours > 0) {
+      let pk = null;
+      for (const q of pts) if (q.t >= p.start && q.t <= p.start + p.hours && (!pk || q.F > pk.F)) pk = q;
+      if (pk) {
+        const px = Math.min(W - m.r - 16, Math.max(m.l + 16, X(pk.t)));
+        svg += '<circle cx="' + X(pk.t).toFixed(1) + '" cy="' + Y(pk.F).toFixed(1) + '" r="6" fill="var(--ink)" stroke="var(--surface)" stroke-width="2"/>';
+        svg += '<text class="lbl num" x="' + px.toFixed(1) + '" y="' + (Y(pk.F) - 12).toFixed(1) + '" text-anchor="middle">' + Math.round(pk.F) + '°F</text>';
+      }
+    }
+    box.innerHTML = svg + '</svg>';
+    box.setAttribute('aria-label', 'Line chart of heat index in degrees Fahrenheit against time of day from 4 AM to 10 PM. ' + (p.hours > 0 ? 'The crew works ' + fmtTime(p.start) + ' to ' + fmtTime(p.start + p.hours) + ' and the worst moment feels like ' + Math.round(A.yours.peak) + ' degrees.' : 'Work is called off.'));
+    $('keyB').innerHTML = '<span>Solid line: heat index (how hot it feels)</span><span>Dashed line: air temperature</span><span>Bands: OSHA heat risk levels</span>';
+  }
+
+  function drawChartL(A) {
+    const box = $('chartL'), W = Math.max(300, Math.floor(box.clientWidth || 600)), H = Math.round(Math.min(440, Math.max(300, W * 0.72)));
+    const m = { l: 56, r: 14, t: 14, b: 50 }, pw = W - m.l - m.r, ph = H - m.t - m.b;
+    const fx0 = 77, fx1 = 122;
+    const X = (F) => m.l + (F - fx0) / (fx1 - fx0) * pw, Y = (rh) => m.t + (100 - rh) / 100 * ph;
+    const y = A.yours, p = y.plan, hasWin = p.hours > 0;
+    const tw = hasWin && y.tL !== null ? y.tL : 15, dTr = dTrAt(tw), demand = state.mets;
+    // heat map on canvas
+    const nx = 150, ny = 100, cv = document.createElement('canvas'); cv.width = nx; cv.height = ny;
+    const g = cv.getContext('2d'), img = g.createImageData(nx, ny);
+    for (let iy = 0; iy < ny; iy++) for (let ix = 0; ix < nx; ix++) {
+      const rh = 100 - (iy + 0.5) / ny * 100, TaC = toC(fx0 + (ix + 0.5) / nx * (fx1 - fx0)), L = livMETs(TaC, rh, dTr);
+      let c;
+      if (L >= 1.5) c = rampColor(L); else c = survivable(TaC, rh, dTr) ? [120, 112, 128] : [58, 38, 72];
+      const o = (iy * nx + ix) * 4; img.data[o] = c[0]; img.data[o + 1] = c[1]; img.data[o + 2] = c[2]; img.data[o + 3] = 255;
+    }
+    g.putImageData(img, 0, 0);
+    cv.style.cssText = 'left:' + m.l + 'px;top:' + m.t + 'px;width:' + pw + 'px;height:' + ph + 'px';
+    // contours
+    const clampF = (F) => Math.min(fx1, Math.max(fx0, F));
+    const rhs = []; for (let r = 0; r <= 100; r += 2) rhs.push(r);
+    const t15 = rhs.map((r) => rootTa((T) => livMETs(T, r, dTr), 1.5));
+    const tS = rhs.map((r) => rootTa((T) => (survivable(T, r, dTr) ? 1 : 0), 0.5));
+    const tD = rhs.map((r) => rootTa((T) => livMETs(T, r, dTr), demand));
+    const line = (arr, filt) => { let d = ''; arr.forEach((T, i) => { if (T === null) return; const F = toF(T); if (F < fx0 - 1 || F > fx1 + 1) { d += ''; return; } d += (d ? 'L' : 'M') + X(F).toFixed(1) + ' ' + Y(rhs[i]).toFixed(1); }); return d; };
+    let hatch = '';
+    const L1 = [], R1 = [];
+    rhs.forEach((r, i) => { if (t15[i] === null) return; const a = clampF(toF(t15[i])), b = tS[i] === null ? fx1 : clampF(toF(tS[i])); if (b > a) { L1.push([a, r]); R1.push([b, r]); } });
+    if (L1.length > 1) hatch = 'M' + L1.map(([a, r]) => X(a).toFixed(1) + ' ' + Y(r).toFixed(1)).join('L') + 'L' + R1.reverse().map(([b, r]) => X(b).toFixed(1) + ' ' + Y(r).toFixed(1)).join('L') + 'Z';
+    let svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="' + W + '" height="' + H + '" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+      '<defs><clipPath id="clipL"><rect x="' + m.l + '" y="' + m.t + '" width="' + pw + '" height="' + ph + '"/></clipPath>' +
+      '<pattern id="hatchL" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="7" stroke="#fff" stroke-opacity=".8" stroke-width="2"/></pattern></defs>';
+    svg += '<g clip-path="url(#clipL)">';
+    if (hatch) svg += '<path d="' + hatch + '" fill="url(#hatchL)"/>';
+    for (let v = 80; v <= 120; v += 10) svg += '<line x1="' + X(v).toFixed(1) + '" x2="' + X(v).toFixed(1) + '" y1="' + m.t + '" y2="' + (m.t + ph) + '" stroke="#fff" stroke-opacity=".28"/>';
+    for (let v = 20; v <= 80; v += 20) svg += '<line x1="' + m.l + '" x2="' + (m.l + pw) + '" y1="' + Y(v).toFixed(1) + '" y2="' + Y(v).toFixed(1) + '" stroke="#fff" stroke-opacity=".28"/>';
+    const dD = line(tD);
+    if (dD) svg += '<path d="' + dD + '" fill="none" stroke="var(--surface)" stroke-width="5.5"/><path d="' + dD + '" fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-dasharray="7 5"/>';
+    const dS = line(tS);
+    if (dS) svg += '<path d="' + dS + '" fill="none" stroke="var(--surface)" stroke-width="6"/><path d="' + dS + '" fill="none" stroke="var(--purple)" stroke-width="3.4"/>';
+    // the crew's path through the day at today's humidity
+    if (hasWin) {
+      let d = '', dots = '';
+      for (let t = p.start; t <= p.start + p.hours + 1e-9; t += 0.5) { const F = airT(t); d += (d ? 'L' : 'M') + X(F).toFixed(1) + ' ' + Y(state.rh).toFixed(1); dots += '<circle cx="' + X(F).toFixed(1) + '" cy="' + Y(state.rh).toFixed(1) + '" r="2.6" fill="var(--ink)"/>'; }
+      svg += '<path d="' + d + '" fill="none" stroke="var(--surface)" stroke-width="5"/><path d="' + d + '" fill="none" stroke="var(--ink)" stroke-width="2"/>' + dots;
+    }
+    svg += '</g>';
+    svg += '<rect x="' + m.l + '" y="' + m.t + '" width="' + pw + '" height="' + ph + '" fill="none" stroke="var(--ink-2)"/>';
+    for (let v = 80; v <= 120; v += 10) svg += '<text x="' + X(v).toFixed(1) + '" y="' + (m.t + ph + 16) + '" text-anchor="middle" class="num">' + v + '</text>';
+    for (let v = 0; v <= 100; v += 20) svg += '<text x="' + (m.l - 6) + '" y="' + (Y(v) + 4).toFixed(1) + '" text-anchor="end" class="num">' + v + '</text>';
+    svg += '<text class="ax" x="' + (m.l + pw / 2) + '" y="' + (H - 8) + '" text-anchor="middle">Air temperature (\u00B0F)</text>';
+    svg += '<text class="ax" transform="translate(13 ' + (m.t + ph / 2) + ') rotate(-90)" text-anchor="middle">Relative humidity (%)</text>';
+    // the worst moment of the plan
+    const Fw = airT(tw), Lw = livMETs(toC(Fw), state.rh, dTr);
+    if (Fw >= fx0 && Fw <= fx1) {
+      const px = X(Fw), py = Y(state.rh), right = px > m.l + pw * 0.6;
+      svg += '<circle cx="' + px.toFixed(1) + '" cy="' + py.toFixed(1) + '" r="8" fill="var(--accent)" stroke="var(--ink)" stroke-width="3"/>';
+      svg += '<text class="lbl" x="' + (px + (right ? -13 : 13)).toFixed(1) + '" y="' + (py + (py < m.t + 30 ? 22 : -12)).toFixed(1) + '" text-anchor="' + (right ? 'end' : 'start') + '">' + fmtTime(tw) + ': limit ' + Lw.toFixed(1) + ' METs</text>';
+    }
+    box.innerHTML = '';
+    box.appendChild(cv);
+    box.insertAdjacentHTML('beforeend', svg + '</svg>');
+    box.setAttribute('aria-label', 'Map of livable effort in METs for healthy adults aged 18 to 40, with air temperature in degrees Fahrenheit on the horizontal axis and relative humidity on the vertical axis. Livable effort falls as it gets hotter and more humid. At the worst moment of your plan, ' + fmtTime(tw) + ', the livable effort is ' + Lw.toFixed(1) + ' METs.');
+    // status line
+    const surv = survivable(toC(Fw), state.rh, dTr);
+    let cls, label, txt;
+    if (!surv) { cls = 'lv3'; label = 'Not survivable'; txt = 'At ' + fmtTime(tw) + ' a resting young adult could not stay below 43\u00B0C core temperature for 3 hours.'; }
+    else if (Lw < 1.5) { cls = 'lv3'; label = 'Survivable, not livable'; txt = 'At ' + fmtTime(tw) + ' even sitting still stores heat. Nobody can do any extra work.'; }
+    else if (Lw < demand) { cls = 'lv1'; label = 'Livable only for lighter work'; txt = 'At ' + fmtTime(tw) + ' a young adult can sustain up to <b>' + Lw.toFixed(1) + ' METs</b>. Your work is <b>' + demand + ' METs</b>, so heat builds up.'; }
+    else { cls = 'lv0'; label = 'Livable at your pace'; txt = 'At ' + fmtTime(tw) + ' a young adult can sustain up to <b>' + Lw.toFixed(1) + ' METs</b>. Your work is <b>' + demand + ' METs</b>.'; }
+    $('livstat').innerHTML = '<span class="chip ' + cls + '">' + label + '</span><span>' + txt + '</span>';
+    $('keyL').innerHTML = '<span class="dashkey">Limit for ' + demand + ' METs work (hotter than this line, it is not livable)</span><span class="purplekey">3-hour survivability limit (right of it, not survivable)</span><span class="hatchkey">Survivable but not livable</span><span>Dot: worst moment of your plan. Black line: the crew\u2019s day at today\u2019s humidity.</span>';
+    // heat storage text
+    let note;
+    if (!hasWin) note = '<b>Work is called off,</b> so no one is exposed to heat storage today.';
+    else {
+      const rise = y.peakRise, rest = y.reqRest;
+      note = '<b>What happens inside the body.</b> At ' + demand + ' METs with ' + (state.rest ? state.rest + ' min' : 'no') + ' rest each hour, heat the body cannot shed would raise core temperature by ' + (rise < 0.05 ? 'almost nothing' : (rise >= 3 ? 'more than +3\u00B0C' : '+' + rise.toFixed(1) + '\u00B0C')) + ' by the worst point (the workplace limit is +1.0\u00B0C, so 38.0\u00B0C). ' +
+        (rest > 0 ? 'To stay in balance at the worst moment, the crew would need about <b>' + rest + ' min of rest each hour</b>.' : 'At the worst moment, no extra rest is needed.');
+    }
+    $('livnote').innerHTML = note;
+  }
+
+  function drawChartA(A) { // cases vs heat index for several crew mixes
+    const box = $('chartA'), W = Math.max(300, Math.floor(box.clientWidth || 600)), H = Math.round(Math.min(380, Math.max(300, W * 0.58)));
+    const m = { l: 62, r: 78, t: 14, b: 52 };
+    const plan = state.hours > 0 ? A.yours.plan : { start: NORMAL.start, hours: NORMAL.hours, rest: state.rest, prot: state.prot };
+    const x0 = 80, x1 = 125;
+    const u = state.newShare / 100;
+    const shares = [0, 0.25, 0.5, 1];
+    const curves = shares.map((s) => ({ s, dash: s === 0 ? '' : '5 4', lab: s === 1 ? '100% new' : s * 100 + '% new' }));
+    const yours = casesAt(x1, u, plan);
+    const meanHI = A.yours.meanRR ? REF_HI + Math.log(A.yours.meanRR) / BETA : null;
+    const yourCases = A.yours.cases;
+    let yMin, yMax;
+    if (logScale) { yMin = Math.pow(10, Math.floor(Math.log10(Math.max(1e-9, casesAt(x0, 0, plan))))); yMax = Math.pow(10, Math.ceil(Math.log10(casesAt(x1, 1, plan)))); }
+    else { yMin = 0; yMax = niceMax(Math.max(casesAt(105, 0.5, plan), (yourCases || 0) * 4, 1e-6)); }
+    const X = (v) => m.l + (v - x0) / (x1 - x0) * (W - m.l - m.r);
+    const Yv = (v) => { const c = Math.min(Math.max(v, yMin), yMax); return logScale ? m.t + (Math.log10(yMax) - Math.log10(c)) / (Math.log10(yMax) - Math.log10(yMin)) * (H - m.t - m.b) : m.t + (yMax - c) / (yMax - yMin) * (H - m.t - m.b); };
+    let svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="' + W + '" height="' + H + '" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><clipPath id="clipA"><rect x="' + m.l + '" y="' + (m.t - 1) + '" width="' + (W - m.l - m.r) + '" height="' + (H - m.t - m.b + 2) + '"/></clipPath></defs>';
+    // vertical OSHA bands
+    for (const [lo, hi, i] of BAND_EDGES) {
+      const a = Math.max(lo, x0), b = Math.min(hi, x1);
+      if (b <= a) continue;
+      svg += '<rect class="b' + i + '" x="' + X(a).toFixed(1) + '" y="' + m.t + '" width="' + (X(b) - X(a)).toFixed(1) + '" height="' + (H - m.t - m.b) + '" style="fill-opacity:var(--band-op)"/>';
+      if (X(b) - X(a) > 44) svg += '<text class="bl" x="' + ((X(a) + X(b)) / 2).toFixed(1) + '" y="' + (m.t + 14) + '" text-anchor="middle">' + BANDS[i] + '</text>';
+    }
+    // y ticks
+    const ticks = [];
+    if (logScale) { for (let e = Math.log10(yMin); e <= Math.log10(yMax) + 1e-9; e++) ticks.push(Math.pow(10, Math.round(e))); }
+    else { const st = niceMax(yMax / 5); for (let i = 0; i * st <= yMax + 1e-12 && i < 9; i++) ticks.push(i * st); }
+    for (const v of ticks) {
+      svg += '<line x1="' + m.l + '" x2="' + (W - m.r) + '" y1="' + Yv(v).toFixed(1) + '" y2="' + Yv(v).toFixed(1) + '" stroke="var(--line)" stroke-opacity=".8"/>';
+      svg += '<text x="' + (m.l - 6) + '" y="' + (Yv(v) + 4).toFixed(1) + '" text-anchor="end" class="num">' + (v >= 1 ? v.toLocaleString('en-US') : +v.toPrecision(2)) + '</text>';
+    }
+    for (let v = 80; v <= 125; v += 10) svg += '<text x="' + X(v).toFixed(1) + '" y="' + (H - m.b + 16) + '" text-anchor="middle" class="num">' + v + '</text>';
+    svg += '<text class="ax" x="' + ((m.l + W - m.r) / 2) + '" y="' + (H - 8) + '" text-anchor="middle">Heat index while working (°F)</text>';
+    svg += '<text class="ax" transform="translate(14 ' + ((m.t + H - m.b) / 2) + ') rotate(-90)" text-anchor="middle">Workers treated per day (people' + (logScale ? ', log scale' : '') + ')</text>';
+    // curves
+    const draw = (s, w, dash, color) => {
+      let d = '';
+      for (let v = x0; v <= x1 + 1e-9; v += 1) d += (d ? 'L' : 'M') + X(v).toFixed(1) + ' ' + Yv(casesAt(v, s, plan)).toFixed(1);
+      return '<path d="' + d + '" fill="none" stroke="' + color + '" stroke-width="' + w + '"' + (dash ? ' stroke-dasharray="' + dash + '"' : '') + ' clip-path="url(#clipA)"/>';
+    };
+    for (const c of curves) svg += draw(c.s, 1.8, c.dash, 'var(--ink-2)');
+    if (!shares.some((s) => Math.abs(s - u) < 1e-9)) svg += draw(u, 3, '', 'var(--ink)');
+    else svg += draw(u, 3.4, curves.find((c) => Math.abs(c.s - u) < 1e-9).dash, 'var(--ink)');
+    // direct labels at right end (or where the curve leaves the top)
+    const labs = [];
+    for (const c of curves) {
+      let vx = x1; while (vx > x0 && casesAt(vx, c.s, plan) > yMax) vx -= 1;
+      labs.push({ x: X(vx), y: Yv(casesAt(vx, c.s, plan)), t: c.lab });
+    }
+    labs.sort((a, b) => a.y - b.y);
+    for (let i = 1; i < labs.length; i++) if (labs[i].y - labs[i - 1].y < 14) labs[i].y = labs[i - 1].y + 14;
+    for (const l of labs) svg += '<text x="' + Math.min(W - m.r + 4, l.x + 6).toFixed(1) + '" y="' + (l.y + 4).toFixed(1) + '" style="font-size:12px">' + l.t + '</text>';
+    // your marker
+    if (A.yours.meanRR) {
+      const mx = Math.min(x1, Math.max(x0, meanHI));
+      svg += '<circle cx="' + X(mx).toFixed(1) + '" cy="' + Yv(yourCases).toFixed(1) + '" r="7" fill="var(--accent)" stroke="var(--ink)" stroke-width="3" />';
+      const left = X(mx) > W * 0.6;
+      svg += '<text class="lbl" x="' + (X(mx) + (left ? -12 : 12)).toFixed(1) + '" y="' + (Yv(yourCases) - 12).toFixed(1) + '" text-anchor="' + (left ? 'end' : 'start') + '">Your plan: ' + casesTxt(yourCases) + ' workers</text>';
+    }
+    box.innerHTML = svg + '</svg>';
+    box.setAttribute('aria-label', 'Chart of expected workers treated for heat illness per day against heat index, for crews with 0, 25, 50 and 100 percent of workers new to heat. All lines rise steeply with heat, and crews with more new workers rise faster.');
+    $('keyA').innerHTML = '<span>Thick line: your crew (' + state.newShare + '% new)</span><span>Gray lines: other crew mixes</span><span>Yellow dot: your plan today</span>' + (state.hours === 0 ? '<span>Work is called off, so the lines assume the normal 8-hour shift.</span>' : '');
+    // dynamic "what to notice"
+    const hi = meanHI === null ? 100 : meanHI;
+    const mine0 = casesAt(hi, u, plan), mine5 = casesAt(hi + 5, u, plan), vet0 = casesAt(hi, 0, plan), vet5 = casesAt(hi + 5, 0, plan);
+    $('notice').innerHTML = '<b>Watch the gap.</b> From where you are now, 5°F more heat adds about <b>' + casesTxt(mine5 - mine0) + '</b> treated workers with your crew (' + state.newShare + '% new), but only <b>' + casesTxt(vet5 - vet0) + '</b> with an all-veteran crew. Heat sets the multiplier, and crew experience sets the number it multiplies.';
+  }
+
+  let last = null;
+  function update() {
+    syncControls();
+    const A = analyse(); last = A;
+    renderStory(); renderScore(A); renderVerdict(A); renderOptions(A); renderRec(A); drawChartL(A); drawChartA(A); drawChartB(A);
+  }
+
+  function buildStatic() {
+    const stops = RAMP.map(([v, c]) => 'rgb(' + c.join(',') + ') ' + ((v - 1.5) / 7.5 * 100).toFixed(1) + '%').join(',');
+    $('ramp').style.background = 'linear-gradient(to right,' + stops + ')';
+    const ticks = [[1.5, 'Sitting 1.5'], [3, 'Housework 3'], [5, 'Dancing 5'], [7, 'Heavy lifting 7']];
+    $('rampticks').style.cssText = 'position:relative;height:18px';
+    $('rampticks').innerHTML = ticks.map(([v, l]) => '<span style="position:absolute;left:' + ((v - 1.5) / 7.5 * 100) + '%;transform:translateX(' + (v === 1.5 ? '0' : v === 7 ? '-70%' : '-50%') + ');white-space:nowrap">' + l + '</span>').join('');
+    const hit = (RH) => rootTa((T) => livMETs(T, RH, 0), 1.5);
+    const rows = [
+      ['25\u00B0C (77\u00B0F) in shade, dry air', '8.4 METs', livMETs(25, 0, 0).toFixed(1) + ' METs'],
+      ['25\u00B0C in shade, humid air (100%)', '5.0 METs', livMETs(25, 100, 0).toFixed(1) + ' METs'],
+      ['25\u00B0C in sun (+15\u00B0C radiant), dry air', '7.4 METs', livMETs(25, 0, 15).toFixed(1) + ' METs'],
+      ['25\u00B0C in sun, humid air', '3.9 METs', livMETs(25, 100, 15).toFixed(1) + ' METs'],
+      ['Air temperature where humid air (over 75%) leaves no room for any activity above 1.5 METs', 'about 35.5\u00B0C', hit(80).toFixed(1) + '\u00B0C (at 80% humidity)'],
+      ['3-hour survivability limit, dry air, as wet-bulb temperature', '25.8\u00B0C', wetBulb(rootTa((T) => (survivable(T, 1, 0) ? 1 : 0), 0.5), 1).toFixed(1) + '\u00B0C'],
+      ['3-hour survivability limit, humid air, as wet-bulb temperature', '34.1\u00B0C', wetBulb(rootTa((T) => (survivable(T, 100, 0) ? 1 : 0), 0.5), 100).toFixed(1) + '\u00B0C']
+    ];
+    $('checkrows').innerHTML = rows.map((r) => '<tr><td>' + r[0] + '</td><td class="num">' + r[1] + '</td><td class="num">' + r[2] + '</td></tr>').join('');
+  }
+
+  buildControls();
+  buildStatic();
+  update();
+  if ('ResizeObserver' in window) {
+    let w = 0;
+    new ResizeObserver((e) => { const nw = Math.round(e[0].contentRect.width); if (nw !== w) { w = nw; if (last) { drawChartL(last); drawChartA(last); drawChartB(last); } } }).observe($('chartB'));
+  } else window.addEventListener('resize', () => last && (drawChartL(last), drawChartA(last), drawChartB(last)));
+})();
+</script>
+</body>
+</html>
