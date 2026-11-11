@@ -536,6 +536,7 @@ footer { margin-top: 36px; font-size: 14px; color: var(--ink-2); max-width: 74ch
   function money(n) { const r = Math.round(n / 100) * 100, s = '$' + Math.abs(r).toLocaleString('en-US'); return r < 0 ? '−' + s : s; }
   function oneIn(p) {
     if (p < 0.001) return 'less than 1 in 1,000';
+    if (p >= 0.995) return 'more than 99 in 100';
     if (p >= 0.5) return Math.round(p * 100) + ' in 100';
     return '1 in ' + Math.round(1 / p).toLocaleString('en-US');
   }
